@@ -1,14 +1,37 @@
 
 ```{r load_packages}
-required_packages <- c("")
+required_packages <- c("dplyr", "lubridate")
 for (package in required_packages) {
     library(package, character.only = TRUE)
 }
 ```
 
 ```{r load_data}
-storm_data_url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
-storm_data_bz2 <- "StormData.csv.bz2"
-download.file(storm_data_url, storm_data_bz2, method = "curl")
-storm_data <- read.csv(storm_data_bz2, stringsAsFactors = FALSE)
+original_data_url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+original_data_bz2 <- "StormData.csv.bz2"
+download.file(original_data_url, original_data_bz2, method = "curl")
+original_data <- read.csv(original_data_bz2, stringsAsFactors = FALSE)
+```
+
+```{r tidy_select}
+tidy_data <- original_data %>%
+    select(BGN_DATE, EVTYPE, FATALITIES, INJURIES, 
+           PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP)
+```
+
+```{r tidy_date}
+tidy_data <- tidy_data %>%
+    mutate(date = mdy_hms(BGN_DATE)) %>%
+    select(-BGN_DATE)
+```
+
+```{r tidy_damage}
+numeric_exp <- function(letter) {
+    letter[!letter %in% c("K", "M", "B")] <- ""
+    sapply(letter, function(l) switch(l, K = 3, M = 6, B = 9, 0))
+}
+tidy_data <- tidy_data %>%
+    mutate(property_damage = PROPDMG * 10 ** numeric_exp(PROPDMGEXP)) %>%
+    mutate(crop_damage = CROPDMG * 10 ** numeric_exp(CROPDMGEXP)) %>%
+    select(-PROPDMG, -PROPDMGEXP, -CROPDMG, -CROPDMGEXP)
 ```
