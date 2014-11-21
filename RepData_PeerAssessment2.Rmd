@@ -1,0 +1,14 @@
+
+```{r load_packages}
+required_packages <- c("")
+for (package in required_packages) {
+    library(package, character.only = TRUE)
+}
+```
+
+```{r load_data}
+storm_data_url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+storm_data_bz2 <- "StormData.csv.bz2"
+download.file(storm_data_url, storm_data_bz2, method = "curl")
+storm_data <- read.csv(storm_data_bz2, stringsAsFactors = FALSE)
+```
