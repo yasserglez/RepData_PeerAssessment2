@@ -10,7 +10,8 @@ for (package in required_packages) {
 original_data_url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 original_data_bz2 <- "StormData.csv.bz2"
 download.file(original_data_url, original_data_bz2, method = "curl")
-original_data <- read.csv(original_data_bz2, stringsAsFactors = FALSE)
+original_data <- read.csv(original_data_bz2, stringsAsFactors = FALSE, 
+                          nrow = 10000)
 ```
 
 ```{r tidy_data}
