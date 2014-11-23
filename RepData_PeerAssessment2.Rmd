@@ -1,6 +1,6 @@
 
 ```{r load_packages}
-required_packages <- c("dplyr", "lubridate", "stringi", "stringdist")
+required_packages <- c("dplyr", "lubridate", "stringi", "stringdist", "ggplot2")
 for (package in required_packages) {
     library(package, character.only = TRUE)
 }
@@ -54,4 +54,12 @@ tidy_data <- original_data %>%
 
 colnames(tidy_data) <- c("date", "event_type", "fatalities", "injuries",
                          "property_damage", "crop_damage")
+```
+
+
+```{r events}
+ggplot(tidy_data, aes(x = date)) +
+    geom_bar(binwidth = as.numeric(duration(1, "year"))) +
+    labs(title = "NOAA Storm Database", 
+         x = "Date", y = "Number of recorded events")
 ```
