@@ -1,8 +1,7 @@
 
 ```{r load_packages}
-required_packages <- c("dplyr", "lubridate", "stringi", "stringdist", 
-                       "ggplot2", "tidyr")
-for (package in required_packages) {
+packages <- c("dplyr", "lubridate", "stringi", "stringdist", "ggplot2", "tidyr")
+for (package in packages) {
     library(package, character.only = TRUE)
 }
 ```
@@ -11,7 +10,7 @@ for (package in required_packages) {
 original_data_url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 original_data_bz2 <- "StormData.csv.bz2"
 download.file(original_data_url, original_data_bz2, method = "curl")
-original_data <- read.csv(original_data_bz2, stringsAsFactors = FALSE, 
+original_data <- read.csv(original_data_bz2, stringsAsFactors = FALSE,
                           nrow = 10000)
 ```
 
@@ -30,14 +29,23 @@ event_types <- c("Astronomical Low Tide", "Avalanche", "Blizzard",
     "Winter Weather")
 
 normalize_event_type <- Vectorize(function(event_type) {
-    event_type <- stri_trans_totitle(event_type)
+    event_type <- event_type %>%
+        # Expand abbreviations:
+        stri_replace_first_fixed("TSTM", "THUNDERSTORM") %>%
+        # If alternatives are given, take the first one:
+        stri_extract_first_regex("^[^/]+") %>%
+        # Convert to 'Title Case'
+        stri_trans_totitle()
     distances <- stringdist(event_type, event_types, method = "lv")
     event_types[which.min(distances)]
 })
 
 numeric_exp <- function(letter) {
-    letter[!letter %in% c("K", "M", "B")] <- ""
-    sapply(letter, function(l) switch(l, K = 3, M = 6, B = 9, 0))
+    recognized_exp <- c(`1` = 1, `2` = 2, H = 2, h = 2, `3` = 3, 
+        K = 3, k = 3, `4` = 4, `5` = 5, `6` = 6, M = 6, m = 6,
+        `7` = 7, `8` = 8, `9` = 9, B = 9, b = 9)
+    letter[!letter %in% names(recognized_exp)] <- ""
+    sapply(letter, function(l) do.call(switch, c(list(l), recognized_exp, 0)))
 }
 
 tidy_data <- original_data %>%
@@ -47,10 +55,10 @@ tidy_data <- original_data %>%
     # Convert BGN_DATE to a vector of class POSIXct:
     mutate(BGN_DATE = mdy_hms(BGN_DATE)) %>%
     # Normalize EVTYPE:
-    mutate(EVTYPE = normalize_event_type(EVTYPE)) %>%
+    mutate(EVTYPE = factor(normalize_event_type(EVTYPE))) %>%
     # Compute the numerical values of PROPDMG and CROPDMG:
-    mutate(PROPDMG = PROPDMG * 10 ** numeric_exp(PROPDMGEXP)) %>%
-    mutate(CROPDMG = CROPDMG * 10 ** numeric_exp(CROPDMGEXP)) %>%
+    mutate(PROPDMG = PROPDMG * 10^numeric_exp(PROPDMGEXP)) %>%
+    mutate(CROPDMG = CROPDMG * 10^numeric_exp(CROPDMGEXP)) %>%
     select(-PROPDMGEXP, -CROPDMGEXP)
 
 colnames(tidy_data) <- c("date", "event_type", "fatalities", "injuries",
@@ -71,15 +79,15 @@ population_data <- tidy_data %>%
     gather(damage_type, damage_count, -event_type) %>%
     group_by(damage_type) %>%
     arrange(desc(damage_count)) %>%
-    filter(row_number() <= 3)
+    filter(row_number() <= 5)
 
-ggplot(population_data, aes(x = event_type, y = damage_count, fill = event_type)) +
+ggplot(population_data, aes(x = reorder(event_type, -damage_count),
+                            y = damage_count, fill = event_type)) +
     geom_bar(stat = "identity") +
-    coord_flip() +
-    facet_grid(damage_type ~ .) +
-    theme(legend.position = "none") +
-    labs(title = "Damages to Population Health",
-         x = "Event type", y = "Count")
+    facet_wrap(~ damage_type, scales = "free_x") +
+    theme(legend.position = "none",
+          axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(title = "Damages to Population Health", x = NULL, y = "Total")
 ```
 
 ```{r economy_data}
@@ -87,12 +95,12 @@ economy_data <- tidy_data %>%
     group_by(event_type) %>%
     summarize(total_damages = sum(property_damage) + sum(crop_damage)) %>%
     arrange(desc(total_damages)) %>%
-    filter(row_number() <= 3)
+    filter(row_number() <= 10)
 
-ggplot(economy_data, aes(x = event_type, y = total_damages, fill = event_type)) +
+ggplot(economy_data, aes(x = reorder(event_type, -total_damages), 
+                         y = total_damages / 10^9, fill = event_type)) +
     geom_bar(stat = "identity") +
-    coord_flip() +
-    theme(legend.position = "none") +
-    labs(title = "Damages to the Economy",
-         x = "Event type", y = "Damages (dollars)")
+    theme(legend.position = "none",
+          axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(title = "Damages to the Economy", x = NULL, y = "Cost (billion dollars)")
 ```
