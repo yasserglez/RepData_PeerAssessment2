@@ -30,10 +30,15 @@ event_types <- c("Astronomical Low Tide", "Avalanche", "Blizzard",
 
 normalize_event_type <- Vectorize(function(event_type) {
     event_type <- event_type %>%
-        # Expand abbreviations:
-        stri_replace_first_fixed("TSTM", "THUNDERSTORM") %>%
         # If alternatives are given, take the first one:
         stri_extract_first_regex("^[^/]+") %>%
+        # Trim whitespaces:
+        stri_trim_both() %>%
+        # Handle some conflictive cases:
+        stri_replace_first_fixed("TSTM", "Thunderstorm") %>%
+        stri_replace_first_regex("^COLD$", "Cold/Wind Chill") %>%
+        stri_replace_first_regex("^EXTREME COLD$", "Extreme Cold/Wind Chill") %>%
+        stri_replace_first_regex("^WIND$", "Strong Wind") %>%
         # Convert to 'Title Case'
         stri_trans_totitle()
     distances <- stringdist(event_type, event_types, method = "lv")
@@ -52,6 +57,9 @@ tidy_data <- original_data %>%
     # Select a subset of the columns:
     select(BGN_DATE, EVTYPE, FATALITIES, INJURIES, 
            PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP) %>%
+    # Filter events with nonzero values in at least one of the columns
+    # FATALITIES, INJURIES, PROPDMG or CROPDMG:
+    filter(FATALITIES > 0 | INJURIES > 0 | PROPDMG > 0 | CROPDMG > 0) %>%
     # Convert BGN_DATE to a vector of class POSIXct:
     mutate(BGN_DATE = mdy_hms(BGN_DATE)) %>%
     # Normalize EVTYPE:
