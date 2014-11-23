@@ -1,6 +1,7 @@
 
 ```{r load_packages}
-required_packages <- c("dplyr", "lubridate", "stringi", "stringdist", "ggplot2")
+required_packages <- c("dplyr", "lubridate", "stringi", "stringdist", 
+                       "ggplot2", "tidyr")
 for (package in required_packages) {
     library(package, character.only = TRUE)
 }
@@ -62,4 +63,22 @@ ggplot(tidy_data, aes(x = date)) +
     geom_bar(binwidth = as.numeric(duration(1, "year"))) +
     labs(title = "NOAA Storm Database", 
          x = "Date", y = "Number of recorded events")
+```
+
+```{r population_health}
+population_health <- tidy_data %>%
+    group_by(event_type) %>%
+    summarize(Fatalities = sum(fatalities), Injuries = sum(injuries)) %>%
+    gather(damage_type, damage_count, -event_type) %>%
+    group_by(damage_type) %>%
+    arrange(desc(damage_count)) %>%
+    filter(row_number() <= 10)
+
+ggplot(population_health, aes(x = event_type, y = damage_count, fill = event_type)) +
+    geom_bar(stat = "identity") +
+    coord_flip() +
+    facet_grid(damage_type ~ .) +
+    theme(legend.position = "none") +
+    labs(title = "Damages to Population Health",
+         x = "Event type", y = "Count")
 ```
