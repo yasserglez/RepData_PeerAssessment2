@@ -1,18 +1,18 @@
 
-# Damages Caused by Severe Weather Events in the United States
+# Severe Weather Events in the United States
 
 Severe weather events can cause both public health and economic problems.
-This explores the U.S. National Oceanic and Atmospheric Administration's (NOAA) 
-storm database with the goal of answering the following two questions:
+This report explores the U.S. National Oceanic and Atmospheric Administration's 
+(NOAA) storm database in order to answer the following two questions:
 
 1.  Which types of events are most harmful with respect to population health?
 2.  Which types of events have the greatest economic consequences?
 
 ## Data Processing
 
-The analysis was performed using R version 3.1.2 (2014-10-31) together with 
-a group of supporting packages available in
-[The Comprehensive R Archive Network](http://cran.r-project.org/) (CRAN).
+The analysis was performed using R version 3.1.2 (2014-10-31) along with 
+a group of supporting packages available in the
+[Comprehensive R Archive Network](http://cran.r-project.org/) (CRAN).
 The first step in the analysis is to load all the required packages in R:
 
 
@@ -29,9 +29,9 @@ from the following link:
 
 https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2
 
-Additional information about some of the variables provided in the 
+Additional information about some of the variables is provided in the 
 [Storm Data Preparation](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf)
-and the [Storm Data FAQ](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2FNCDC%20Storm%20Events-FAQ%20Page.pdf) documents.
+and [Storm Data FAQ](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2FNCDC%20Storm%20Events-FAQ%20Page.pdf) documents.
 
 The storm database can be downloaded and loaded into R as follows:
 
@@ -161,9 +161,9 @@ that motivated the analysis.
 
 The tidy dataset was analyzed in order to get some insights about which 
 types of events are most harmful with respect to population health.
-Both fatalities and injuries are considered separatedly, and for each
+Both fatalities and injuries are considered separately, and for each
 case the top-5 event types are reported. The following R code summarizes 
-the data and generates the figure shown below, which illustrates the answer.
+the data and generates the figure shown below.
 
 
 ```r
@@ -195,7 +195,7 @@ events that cause important damages to the population.
 
 A similar study was performed regarding the events with the greatest economic 
 consequences. In this case, the damages to the economy were measured as
-the combined costs in property and crop damages. The following R code fragment
+the combined cost in property and crop damages. The following R code fragment
 computes the top-10 event types with the greatest economic consequences
 and generates the figure shown below.
 
@@ -218,7 +218,7 @@ ggplot(economic_data, aes(x = reorder(event_type, -total_damages),
 ![](figures/economic_data-1.png) 
 
 The figure evidences that flood causes the greatest economic consequences
-in the U.S., inflicting considerably more property and crop damage than the
+in the U.S., inflicting considerably more property and crop damages than the
 other severe weather events.
 
 ## Conclusions
