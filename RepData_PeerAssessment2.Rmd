@@ -6,6 +6,11 @@ output:
 
 # Damages Caused by Severe Weather Events in the United States
 
+The analysis is motivated by the following two questions:
+
+1.  Which types of events are most harmful with respect to population health?
+2.  Which types of events have the greatest economic consequences?
+
 ## Data Processing
 
 The analysis was performed using `r R.version.string` together with 
@@ -140,7 +145,7 @@ colnames(tidy_data) <- c("date", "event_type", "fatalities", "injuries",
                          "property_damage", "crop_damage")
 ```
 
-The resulting dataset contains `r nrow(tidy_data)` rows and `r ncol(tidy_data)`
+The resulting tidy dataset contains `r nrow(tidy_data)` rows and `r ncol(tidy_data)`
 columns. It contains information about events that took place between 
 `r year(min(tidy_data$date))` and `r year(max(tidy_data$date))`. The 
 following histogram summarizes the information in the tidy dataset.
@@ -156,7 +161,16 @@ ggplot(tidy_data, aes(x = date)) +
 
 ## Results
 
+This section presents the results supporting the answers to the questions
+that motivated the analysis.
+
 ### Damages to Population Health
+
+The tidy dataset was analyzed in order to get some insights about which 
+types of events are most harmful with respect to population health.
+Both fatalities and injuries are considered separatedly, and for each
+case the top-5 event types are reported. The following R code summarizes 
+the data and generates the figure shown below, which illustrates the answer.
 
 ```{r population_data}
 population_data <- tidy_data %>%
@@ -177,6 +191,12 @@ ggplot(population_data, aes(x = reorder(event_type, -damage_count),
 ```
 
 ### Damages to the Economy
+
+A similar study was performed regarding the events with the greatest economic 
+consequences. In this case, the damages to the economy were measured as
+the combined costs in property and crop damages. The following R code fragment
+computes the top-10 event types with the greatest economic consequences
+and generates the figure shown below.
 
 ```{r economy_data}
 economy_data <- tidy_data %>%
