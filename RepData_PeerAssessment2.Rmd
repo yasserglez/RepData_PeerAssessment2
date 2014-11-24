@@ -160,7 +160,7 @@ that motivated the analysis.
 
 The tidy dataset was analyzed in order to get some insights about which 
 types of events are most harmful with respect to population health.
-Both fatalities and injuries are considered separatedly, and for each
+Both fatalities and injuries are considered separately, and for each
 case the top-5 event types are reported. The following R code summarizes 
 the data and generates the figure shown below.
 
