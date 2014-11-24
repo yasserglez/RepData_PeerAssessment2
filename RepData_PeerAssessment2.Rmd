@@ -48,8 +48,7 @@ if (!file.exists(original_data_bz2)) {
 } else {
     download_date <- file.info(original_data_bz2)[, "ctime"]
 }
-original_data <- read.csv(original_data_bz2, stringsAsFactors = FALSE,
-                          nrow = 10000)
+original_data <- read.csv(original_data_bz2, stringsAsFactors = FALSE)
 ```
 
 The data used in this report was downloaded on 
