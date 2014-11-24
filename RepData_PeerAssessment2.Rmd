@@ -145,7 +145,7 @@ following histogram summarizes the information in the tidy dataset.
 It evidences that in the earlier years of the database there are
 fewer events recorded, most likely due to a lack of good records.
 
-```{r events}
+```{r events,fig.path="figures/"}
 ggplot(tidy_data, aes(x = date)) +
     geom_bar(binwidth = as.numeric(duration(1, "year"))) +
     labs(title = "Selected Fraction of the NOAA Storm Database", 
@@ -165,7 +165,7 @@ Both fatalities and injuries are considered separatedly, and for each
 case the top-5 event types are reported. The following R code summarizes 
 the data and generates the figure shown below, which illustrates the answer.
 
-```{r population_data}
+```{r population_data,fig.path="figures/"}
 population_data <- tidy_data %>%
     group_by(event_type) %>%
     summarize(Fatalities = sum(fatalities), Injuries = sum(injuries)) %>%
@@ -196,7 +196,7 @@ the combined costs in property and crop damages. The following R code fragment
 computes the top-10 event types with the greatest economic consequences
 and generates the figure shown below.
 
-```{r economic_data}
+```{r economic_data,fig.path="figures/"}
 economic_data <- tidy_data %>%
     group_by(event_type) %>%
     summarize(total_damages = sum(property_damage) + sum(crop_damage)) %>%
